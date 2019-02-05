@@ -8,8 +8,8 @@ import (
 
 	"github.com/immesys/bw2/crypto"
 	"github.com/immesys/bw2/objects"
-	"github.com/immesys/bw2bind"
 	"github.com/mgutz/ansi"
+	"github.com/ucbrise/starwave/swbind"
 )
 
 func istring(level int) string {
@@ -48,13 +48,13 @@ func ifstring(level int) string {
 func resetTerm() {
 	fmt.Print(ansi.ColorCode("reset"))
 }
-func doentityfile(e *objects.Entity, cl *bw2bind.BW2Client) {
+func doentityfile(e *objects.Entity, cl *swbind.SWClient) {
 	//Do this so you can get registry messages even for files
 	_, status, xerr := cl.ResolveRegistry(crypto.FmtKey(e.GetVK()))
 	regnote := cl.ValidityToString(status, xerr)
 	doentityobj(e, 2, regnote, cl)
 }
-func dorevocationfile(e *objects.Revocation, cl *bw2bind.BW2Client) {
+func dorevocationfile(e *objects.Revocation, cl *swbind.SWClient) {
 	fmt.Println(ifstring(2) + " Revocation Hash: " + crypto.FmtKey(e.GetHash()))
 	if e.SigValid() {
 		fmt.Println(istring(2) + " Signature: valid")
@@ -83,7 +83,7 @@ func dorevocationfile(e *objects.Revocation, cl *bw2bind.BW2Client) {
 		fmt.Println(istring(2) + " Comment: " + e.GetComment())
 	}
 }
-func doentityobj(e *objects.Entity, indent int, regnote string, cl *bw2bind.BW2Client) {
+func doentityobj(e *objects.Entity, indent int, regnote string, cl *swbind.SWClient) {
 	//TODO clean this func up a little to be not copypasta
 	fmt.Println(ifstring(indent) + " Entity VK: " + crypto.FmtKey(e.GetVK()))
 	if e.SigValid() {
@@ -144,7 +144,7 @@ func doentityobj(e *objects.Entity, indent int, regnote string, cl *bw2bind.BW2C
 		doentity(rvk, indent+1, cl)
 	}
 }
-func doentity(vk []byte, indent int, cl *bw2bind.BW2Client) {
+func doentity(vk []byte, indent int, cl *swbind.SWClient) {
 	ei, status, xerr := cl.ResolveRegistry(crypto.FmtKey(vk))
 	regnote := cl.ValidityToString(status, xerr)
 	if ei == nil {
@@ -158,13 +158,13 @@ func doentity(vk []byte, indent int, cl *bw2bind.BW2Client) {
 	}
 	doentityobj(e, indent, regnote, cl)
 }
-func dodotfile(d *objects.DOT, cl *bw2bind.BW2Client) {
+func dodotfile(d *objects.DOT, cl *swbind.SWClient) {
 	//Do this so you can get registry messages even for files
 	_, status, xerr := cl.ResolveRegistry(crypto.FmtKey(d.GetHash()))
 	regnote := cl.ValidityToString(status, xerr)
 	dodotobj(d, 2, regnote, cl)
 }
-func dodot(hash []byte, indent int, cl *bw2bind.BW2Client) {
+func dodot(hash []byte, indent int, cl *swbind.SWClient) {
 	di, status, xerr := cl.ResolveRegistry(crypto.FmtKey(hash))
 	regnote := cl.ValidityToString(status, xerr)
 	if di == nil {
@@ -178,7 +178,7 @@ func dodot(hash []byte, indent int, cl *bw2bind.BW2Client) {
 	}
 	dodotobj(d, indent, regnote, cl)
 }
-func dodotobj(d *objects.DOT, indent int, regnote string, cl *bw2bind.BW2Client) {
+func dodotobj(d *objects.DOT, indent int, regnote string, cl *swbind.SWClient) {
 	fmt.Println(ifstring(indent) + " DOT " + crypto.FmtHash(d.GetHash()))
 	if d.SigValid() {
 		fmt.Println(istring(indent) + " Signature: valid")
@@ -216,7 +216,7 @@ func dodotobj(d *objects.DOT, indent int, regnote string, cl *bw2bind.BW2Client)
 		doentity(rvk, indent+1, cl)
 	}
 }
-func dochain(hash []byte, indent int, verbose bool, cl *bw2bind.BW2Client) {
+func dochain(hash []byte, indent int, verbose bool, cl *swbind.SWClient) {
 	ci, status, xerr := cl.ResolveRegistry(crypto.FmtKey(hash))
 	regnote := cl.ValidityToString(status, xerr)
 	if ci == nil {
@@ -230,13 +230,13 @@ func dochain(hash []byte, indent int, verbose bool, cl *bw2bind.BW2Client) {
 	}
 	dochainobj(c, indent, verbose, regnote, cl)
 }
-func dochainfile(dc *objects.DChain, cl *bw2bind.BW2Client, verbose bool) {
+func dochainfile(dc *objects.DChain, cl *swbind.SWClient, verbose bool) {
 	//Do this so you can get registry messages even for files
 	_, status, xerr := cl.ResolveRegistry(crypto.FmtKey(dc.GetChainHash()))
 	regnote := cl.ValidityToString(status, xerr)
 	dochainobj(dc, 2, verbose, regnote, cl)
 }
-func dochainobj(dc *objects.DChain, indent int, verbose bool, regnote string, cl *bw2bind.BW2Client) {
+func dochainobj(dc *objects.DChain, indent int, verbose bool, regnote string, cl *swbind.SWClient) {
 	fmt.Println(ifstring(indent)+" DChain hash=", crypto.FmtHash(dc.GetChainHash()))
 	if regnote != "valid" {
 		regnote = ansi.ColorCode("red+b") + regnote

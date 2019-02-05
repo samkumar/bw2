@@ -20,9 +20,10 @@ import (
 	"github.com/immesys/bw2/objects"
 	"github.com/immesys/bw2/util"
 	"github.com/immesys/bw2/util/coldstore"
-	"github.com/immesys/bw2bind"
 	"github.com/mgutz/ansi"
+	"github.com/samkumar/bw2bind"
 	qrcode "github.com/skip2/go-qrcode"
+	"github.com/ucbrise/starwave/swbind"
 	"github.com/urfave/cli"
 )
 
@@ -63,7 +64,7 @@ func loadSigningEntityFile(fpath string) *objects.Entity {
 	if !ok {
 		return nil
 	}
-	ent.Encode()
+	//ent.Encode()
 	return ent
 }
 
@@ -95,7 +96,7 @@ func getAvailableEntity(c *cli.Context, param string) *objects.Entity {
 	//TODO
 	return nil
 }
-func getBankroll(c *cli.Context, bwcl *bw2bind.BW2Client) []byte {
+func getBankroll(c *cli.Context, bwcl *swbind.SWClient) []byte {
 
 	par := c.String("bankroll")
 
@@ -111,7 +112,7 @@ func getBankroll(c *cli.Context, bwcl *bw2bind.BW2Client) []byte {
 	return enti.(*objects.Entity).GetSigningBlob()
 }
 
-func getAccountParam(bwcl *bw2bind.BW2Client, c *cli.Context, param string) string {
+func getAccountParam(bwcl *swbind.SWClient, c *cli.Context, param string) string {
 	if param == "" {
 		fmt.Printf("Account parameter missing\n")
 		os.Exit(1)
@@ -149,14 +150,14 @@ func getAccountParam(bwcl *bw2bind.BW2Client, c *cli.Context, param string) stri
 	return "0x" + hex.EncodeToString(res[:20])
 }
 
-func getEntityParamVK(bwcl *bw2bind.BW2Client, c *cli.Context, param string) (string, bool) {
+func getEntityParamVK(bwcl *swbind.SWClient, c *cli.Context, param string) (string, bool) {
 	i, ok := getEntityParam(bwcl, c, param, false)
 	if ok {
 		return i.(string), true
 	}
 	return "", false
 }
-func getDotParamHash(bwcl *bw2bind.BW2Client, c *cli.Context, param string) (string, bool) {
+func getDotParamHash(bwcl *swbind.SWClient, c *cli.Context, param string) (string, bool) {
 	contents, err := ioutil.ReadFile(param)
 	if err != nil && !os.IsNotExist(err) {
 		//If file exists but cannot be read, then error out
@@ -191,7 +192,7 @@ func getDotParamHash(bwcl *bw2bind.BW2Client, c *cli.Context, param string) (str
 	return crypto.FmtKey(dot.GetHash()), true
 
 }
-func getEntityParam(bwcl *bw2bind.BW2Client, c *cli.Context, param string, asSK bool) (interface{}, bool) {
+func getEntityParam(bwcl *swbind.SWClient, c *cli.Context, param string, asSK bool) (interface{}, bool) {
 	//First thing we do is check if there is a local file by that name
 	contents, err := ioutil.ReadFile(param)
 	if err != nil && !os.IsNotExist(err) {
@@ -257,7 +258,7 @@ func getEntityParam(bwcl *bw2bind.BW2Client, c *cli.Context, param string, asSK 
 }
 func actionColdStore(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	cscode := ""
 	for _, v := range c.Args() {
@@ -312,7 +313,7 @@ func actionColdStore(c *cli.Context) error {
 }
 func actionMkDRO(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	nsp := c.String("ns")
 	if nsp == "" {
@@ -350,7 +351,7 @@ func actionMkDRO(c *cli.Context) error {
 }
 func actionRDRO(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	nsp := c.String("ns")
 	if nsp == "" {
@@ -388,7 +389,7 @@ func actionRDRO(c *cli.Context) error {
 }
 func actionRADRO(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	drp := c.String("dr")
 	if drp == "" {
@@ -426,7 +427,7 @@ func actionRADRO(c *cli.Context) error {
 }
 func actionLsDRO(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	nsp := c.String("ns")
 	if nsp == "" {
@@ -460,7 +461,7 @@ func actionLsDRO(c *cli.Context) error {
 }
 func actionADRO(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	drp := c.String("dr")
 	if drp == "" {
@@ -498,7 +499,7 @@ func actionADRO(c *cli.Context) error {
 }
 func actionUSRV(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	srv := c.String("srv")
 	if srv == "" {
@@ -542,7 +543,7 @@ func actionMkAlias(c *cli.Context) error {
 		os.Exit(1)
 	}
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	b := getBankroll(c, cl)
 	cl.SetEntityOrExit(b)
@@ -627,7 +628,7 @@ func actionMkAlias(c *cli.Context) error {
 }
 func actionMkDOT(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if !c.Bool("nopublish") {
 		if c.String("bankroll") == "" {
@@ -705,7 +706,7 @@ func actionMkDOT(c *cli.Context) error {
 }
 func actionRevoke(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if !c.Bool("nopublish") {
 		if c.String("bankroll") == "" {
@@ -781,7 +782,7 @@ func actionRevoke(c *cli.Context) error {
 }
 func actionMkEntity(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if !c.Bool("nopublish") {
 		if c.String("bankroll") == "" {
@@ -843,7 +844,7 @@ func actionMkEntity(c *cli.Context) error {
 	return nil
 }
 
-func inspectInterface(ro objects.RoutingObject, cl *bw2bind.BW2Client) {
+func inspectInterface(ro objects.RoutingObject, cl *swbind.SWClient) {
 	switch ro.GetRONum() {
 	case objects.ROEntity:
 		e := ro.(*objects.Entity)
@@ -880,10 +881,10 @@ func inspectInterface(ro objects.RoutingObject, cl *bw2bind.BW2Client) {
 	resetTerm()
 }
 
-func pubObj(topub objects.RoutingObject, cl *bw2bind.BW2Client, c *cli.Context) {
+func pubObj(topub objects.RoutingObject, cl *swbind.SWClient, c *cli.Context) {
 	pubObjs([]objects.RoutingObject{topub}, cl, c)
 }
-func pubObjs(topubz []objects.RoutingObject, cl *bw2bind.BW2Client, c *cli.Context) {
+func pubObjs(topubz []objects.RoutingObject, cl *swbind.SWClient, c *cli.Context) {
 	cl.SetEntity(getBankroll(c, cl))
 	dmsg := make(chan string, 1)
 	wg := sync.WaitGroup{}
@@ -928,7 +929,7 @@ func pubObjs(topubz []objects.RoutingObject, cl *bw2bind.BW2Client, c *cli.Conte
 	}
 	doChainOp(cl, dmsg)
 }
-func doChainOp(cl *bw2bind.BW2Client, done chan string) {
+func doChainOp(cl *swbind.SWClient, done chan string) {
 	cip, err := cl.GetBCInteractionParams()
 	if err != nil {
 		fmt.Printf("Could not get BCIP: %s\n", err)
@@ -976,7 +977,7 @@ type qrdata struct {
 
 func actionInspect(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	pub := c.Bool("publish")
 	qr := c.Bool("qrcode")
@@ -1017,7 +1018,7 @@ func actionInspect(c *cli.Context) error {
 		//Look it up in the registry
 		{
 			roi, _, _ := cl.ResolveRegistry(par)
-			//if status == bw2bind.StateError {
+			//if status == swbind.StateError {
 			//	fmt.Printf("'%s' does not exist as a file, trying the registry failed: %s\n", par, err.Error())
 			//	goto nextparam
 			//}
@@ -1133,7 +1134,7 @@ func actionInspect(c *cli.Context) error {
 }
 func actionBuildChain(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if c.Bool("publish") {
 		if c.String("bankroll") == "" {
@@ -1195,7 +1196,7 @@ func actionXfer(c *cli.Context) error {
 		os.Exit(1)
 	}
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	cl.SetEntity(getBankroll(c, cl))
 	eth := c.String("ether")
@@ -1253,7 +1254,7 @@ func actionXfer(c *cli.Context) error {
 }
 func actionStatus(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	cip, err := cl.GetBCInteractionParams()
 	if err != nil {
@@ -1272,7 +1273,7 @@ func actionStatus(c *cli.Context) error {
 //sub -e entity uri uri uri
 func actionSubscribe(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if c.String("entity") == "" {
 		fmt.Println("You need to specify an entity to be (-e)")
@@ -1302,7 +1303,7 @@ func actionSubscribe(c *cli.Context) error {
 
 func actionQuery(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if c.String("entity") == "" {
 		fmt.Println("You need to specify an entity to be (-e)")
@@ -1336,7 +1337,7 @@ func actionQuery(c *cli.Context) error {
 
 func actionMset(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if c.String("entity") == "" {
 		fmt.Println("You need to specify an entity to be (-e)")
@@ -1368,7 +1369,7 @@ func actionMset(c *cli.Context) error {
 
 func actionMget(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if c.String("entity") == "" {
 		fmt.Println("You need to specify an entity to be (-e)")
@@ -1437,7 +1438,7 @@ func actionMget(c *cli.Context) error {
 
 func actionMdel(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	if c.String("entity") == "" {
 		fmt.Println("You need to specify an entity to be (-e)")
@@ -1468,7 +1469,7 @@ func actionMdel(c *cli.Context) error {
 
 func actionDTrig(c *cli.Context) error {
 	bw2bind.SilenceLog()
-	cl := bw2bind.ConnectOrExit(c.GlobalString("agent"))
+	cl := swbind.ConnectOrExit(c.GlobalString("agent"))
 	cl.StatLine()
 	e := getAvailableEntity(c, "/home/immesys/.ssh/michael.key")
 	if e == nil {
